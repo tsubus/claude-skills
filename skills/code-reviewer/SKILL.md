@@ -4,7 +4,7 @@ description: Analyzes code diffs and files to identify bugs, security vulnerabil
 license: MIT
 allowed-tools: Read, Grep, Glob
 metadata:
-  author: https://github.com/Jeffallan
+  author: https://github.com/tsubus
   version: "1.1.0"
   domain: quality
   triggers: code review, PR review, pull request, review code, code quality

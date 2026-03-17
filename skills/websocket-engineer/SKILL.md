@@ -3,7 +3,7 @@ name: websocket-engineer
 description: Use when building real-time communication systems with WebSockets or Socket.IO. Invoke for bidirectional messaging, horizontal scaling with Redis, presence tracking, room management.
 license: MIT
 metadata:
-  author: https://github.com/Jeffallan
+  author: https://github.com/tsubus
   version: "1.1.0"
   domain: api-architecture
   triggers: WebSocket, Socket.IO, real-time communication, bidirectional messaging, pub/sub, server push, live updates, chat systems, presence tracking

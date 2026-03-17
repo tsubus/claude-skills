@@ -4,7 +4,7 @@ description: Identifies security vulnerabilities, generates structured audit rep
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash
 metadata:
-  author: https://github.com/Jeffallan
+  author: https://github.com/tsubus
   version: "1.1.0"
   domain: security
   triggers: security review, vulnerability scan, SAST, security audit, penetration test, code audit, security analysis, infrastructure security, DevSecOps, cloud security, compliance audit

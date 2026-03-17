@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
-  site: 'https://jeffallan.github.io',
+  site: 'https://tsubus.github.io',
   base: '/claude-skills',
   integrations: [
     starlight({
@@ -78,7 +78,7 @@ export default defineConfig({
         {
           icon: 'github',
           label: 'GitHub',
-          href: 'https://github.com/jeffallan/claude-skills',
+          href: 'https://github.com/tsubus/claude-skills',
         },
       ],
       sidebar: [

@@ -3,16 +3,16 @@
 </p>
 
 <p align="center">
-<a href="https://trendshift.io/repositories/20667" target="_blank"><img src="https://trendshift.io/api/badge/repositories/20667" alt="Jeffallan%2Fclaude-skills | Trendshift" style="width: 200px; height: 44px;" width="200" height="44"/></a>
+<a href="https://trendshift.io/repositories/20667" target="_blank"><img src="https://trendshift.io/api/badge/repositories/20667" alt="tsubus%2Fclaude-skills | Trendshift" style="width: 200px; height: 44px;" width="200" height="44"/></a>
 <a href="https://github.com/hesreallyhim/awesome-claude-code"><img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Claude Code" style="width: 200px; height: 44px;" width="200" height="44"/></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/jeffallan/claude-skills"><img src="https://img.shields.io/badge/version-0.4.10-blue.svg?style=for-the-badge" alt="Version"/></a>
+  <a href="https://github.com/tsubus/claude-skills"><img src="https://img.shields.io/badge/version-0.4.10-blue.svg?style=for-the-badge" alt="Version"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge" alt="License"/></a>
-  <a href="https://github.com/jeffallan/claude-skills"><img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg?style=for-the-badge" alt="Claude Code"/></a>
-  <a href="https://github.com/jeffallan/claude-skills/stargazers"><img src="https://img.shields.io/github/stars/jeffallan/claude-skills?style=for-the-badge&color=yellow" alt="Stars"/></a>
-  <a href="https://github.com/jeffallan/claude-skills/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/jeffallan/claude-skills/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI"/></a>
+  <a href="https://github.com/tsubus/claude-skills"><img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg?style=for-the-badge" alt="Claude Code"/></a>
+  <a href="https://github.com/tsubus/claude-skills/stargazers"><img src="https://img.shields.io/github/stars/tsubus/claude-skills?style=for-the-badge&color=yellow" alt="Stars"/></a>
+  <a href="https://github.com/tsubus/claude-skills/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/tsubus/claude-skills/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI"/></a>
 </p>
 
 ---
@@ -20,16 +20,16 @@
 ## Quick Start
 
 ```bash
-/plugin marketplace add jeffallan/claude-skills
+/plugin marketplace add tsubus/claude-skills
 ```
 **Then, install the skills:**
 ```bash
-/plugin install fullstack-dev-skills@jeffallan
+/plugin install fullstack-dev-skills@tsubus
 ```
 
 For all installation methods and first steps, see the [**Quick Start Guide**](QUICKSTART.md).
 
-**Full documentation:** [jeffallan.github.io/claude-skills](https://jeffallan.github.io/claude-skills)
+**Full documentation:** [tsubus.github.io/claude-skills](https://tsubus.github.io/claude-skills)
 
 ## Skills
 
@@ -100,13 +100,13 @@ MIT License - See [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- **Issues:** [GitHub Issues](https://github.com/jeffallan/claude-skills/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/jeffallan/claude-skills/discussions)
-- **Repository:** [github.com/jeffallan/claude-skills](https://github.com/jeffallan/claude-skills)
+- **Issues:** [GitHub Issues](https://github.com/tsubus/claude-skills/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/tsubus/claude-skills/discussions)
+- **Repository:** [github.com/tsubus/claude-skills](https://github.com/tsubus/claude-skills)
 
 ## Author
 
-Built by [**jeffallan**](https://jeffallan.github.io) [<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" width="16" height="16" alt="LinkedIn"/>](https://www.linkedin.com/in/jeff-smolinski/)
+Built by [**tsubus**](https://tsubus.github.io) [<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" width="16" height="16" alt="LinkedIn"/>](https://www.linkedin.com/in/jeff-smolinski/)
 
 **Principal Consultant** at [**Synergetic Solutions**](https://synergetic.solutions) [<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" width="16" height="16" alt="LinkedIn"/>](https://www.linkedin.com/company/synergetic-holdings)
 
@@ -114,11 +114,11 @@ Fullstack engineering, security engineering, compliance, and technical due dilig
 
 ## Community
 
-[![Stargazers repo roster for @Jeffallan/claude-skills](https://reporoster.com/stars/Jeffallan/claude-skills)](https://github.com/Jeffallan/claude-skills/stargazers)
+[![Stargazers repo roster for @tsubus/claude-skills](https://reporoster.com/stars/tsubus/claude-skills)](https://github.com/tsubus/claude-skills/stargazers)
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Jeffallan/claude-skills&type=date&legend=top-left)](https://www.star-history.com/#Jeffallan/claude-skills&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=tsubus/claude-skills&type=date&legend=top-left)](https://www.star-history.com/#tsubus/claude-skills&type=date&legend=top-left)
 
 ---
 

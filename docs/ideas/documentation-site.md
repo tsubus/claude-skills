@@ -8,7 +8,7 @@ Proposal for a standalone documentation site for the claude-skills project.
 
 ### The Problem
 
-All project content currently lives on `github.com/jeffallan/claude-skills`. This means:
+All project content currently lives on `github.com/tsubus/claude-skills`. This means:
 
 - **No Google Search Console access** — can't see which queries drive traffic, can't submit sitemaps, can't control indexing
 - **No control over meta tags** — page titles, OpenGraph, structured data are all GitHub's defaults
@@ -359,7 +359,7 @@ Phase 6 (Maintenance) ───────────── ongoing after Phas
 
 ## Open Questions
 
-1. **Custom domain?** — `docs.claudeskills.dev`, `skills.jeffallan.dev`, or subdirectory of existing site?
+1. **Custom domain?** — `docs.claudeskills.dev`, `skills.tsubus.dev`, or subdirectory of existing site?
 2. **Versioned docs?** — Do we need docs for multiple versions, or just latest?
 3. **Search** — Starlight built-in search vs. Algolia DocSearch (free for open source)?
 4. **Docs site repo** — Same repo (monorepo with `/site` directory) or separate repo?

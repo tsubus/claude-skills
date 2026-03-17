@@ -28,7 +28,7 @@ To add a new agent that implements the Agent Skills specification, see the [Supp
 #### 1. Fork and Clone
 ```bash
 # Fork on GitHub, then:
-git clone https://github.com/jeffallan/claude-skills.git
+git clone https://github.com/tsubus/claude-skills.git
 cd claude-skills
 ```
 
@@ -321,14 +321,14 @@ Instances of abusive, harassing, or otherwise unacceptable behavior may be repor
 
 ## Questions
 
-- Open a [GitHub Discussion](https://github.com/jeffallan/claude-skills/discussions)
+- Open a [GitHub Discussion](https://github.com/tsubus/claude-skills/discussions)
 - Comment on relevant issues
 - Reach out to maintainers
 
 ## Recognition
 
 Contributors will be recognized in:
-- [GitHub contributors page](https://github.com/Jeffallan/claude-skills/graphs/contributors)
+- [GitHub contributors page](https://github.com/tsubus/claude-skills/graphs/contributors)
 - Release notes for significant contributions
 
 

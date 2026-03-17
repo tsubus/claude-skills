@@ -7,29 +7,29 @@ Get up and running with the Fullstack Dev Skills Plugin.
 ### Marketplace (Recommended)
 ```bash
 # Add the marketplace
-/plugin marketplace add jeffallan/claude-skills
+/plugin marketplace add tsubus/claude-skills
 
 # Install the plugin
-/plugin install fullstack-dev-skills@jeffallan
+/plugin install fullstack-dev-skills@tsubus
 
 # Restart Claude Code when prompted
 ```
 
 ### Install from GitHub
 ```bash
-claude plugin install https://github.com/jeffallan/claude-skills
+claude plugin install https://github.com/tsubus/claude-skills
 ```
 
 ### Install via skills.sh
 ```bash
-npx skills add jeffallan/claude-skills
+npx skills add tsubus/claude-skills
 ```
 
 > **Note:** This method installs skills only. Slash commands (`/common-ground`, `/project:*`) are not included.
 
 ### Install via Agent Skills CLI
 ```bash
-npx agent-skills-cli@latest add @Jeffallan/claude-skills
+npx agent-skills-cli@latest add @tsubus/claude-skills
 ```
 
 > **Note:** This method installs skills only. Slash commands (`/common-ground`, `/project:*`) are not included. Installs to 42+ AI agents including Claude, Cursor, Copilot, Windsurf, and more. [Learn more](https://www.agentskills.in)
@@ -120,7 +120,7 @@ Include relevant information:
 ### Skills Not Loading After Install
 1. Verify the plugin is installed: `/plugin list`
 2. Check for conflicting skill names in `~/.claude/skills/`
-3. Try reinstalling: `/plugin uninstall fullstack-dev-skills@jeffallan` then reinstall
+3. Try reinstalling: `/plugin uninstall fullstack-dev-skills@tsubus` then reinstall
 
 ### How to Update
 ```bash
@@ -133,7 +133,7 @@ cp -r ./skills/* ~/.claude/skills/
 ### Need Help
 - Check [Skills Guide](SKILLS_GUIDE.md) for skill-specific guidance
 - Review individual `skills/*/SKILL.md` files
-- Open an [issue on GitHub](https://github.com/jeffallan/claude-skills/issues)
+- Open an [issue on GitHub](https://github.com/tsubus/claude-skills/issues)
 
 ## Next Steps
 
@@ -149,5 +149,5 @@ Add new skills. See `CONTRIBUTING.md`.
 ## Support
 
 - Documentation: Check [README](README.md) and [Skills Guide](SKILLS_GUIDE.md)
-- Issues: [GitHub Issues](https://github.com/jeffallan/claude-skills/issues)
-- Discussions: [GitHub Discussions](https://github.com/jeffallan/claude-skills/discussions)
+- Issues: [GitHub Issues](https://github.com/tsubus/claude-skills/issues)
+- Discussions: [GitHub Discussions](https://github.com/tsubus/claude-skills/discussions)

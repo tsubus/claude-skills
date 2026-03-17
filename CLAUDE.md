@@ -42,7 +42,7 @@ name: skill-name-with-hyphens
 description: [Brief capability statement]. Use when [triggering conditions] - max 1024 chars
 license: MIT
 metadata:
-  author: https://github.com/Jeffallan
+  author: https://github.com/tsubus
   version: "1.0.0"
   domain: frontend
   triggers: keyword1, keyword2, keyword3
@@ -188,7 +188,7 @@ Add new version entry at the top following Keep a Changelog format:
 
 Add version comparison link at bottom:
 ```markdown
-[X.Y.Z]: https://github.com/jeffallan/claude-skills/compare/vPREVIOUS...vX.Y.Z
+[X.Y.Z]: https://github.com/tsubus/claude-skills/compare/vPREVIOUS...vX.Y.Z
 ```
 
 ### 3. Update Documentation for New/Modified Content

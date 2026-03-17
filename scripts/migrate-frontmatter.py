@@ -189,7 +189,7 @@ def build_new_frontmatter(fm: dict, skill_name: str) -> str:
     lines.append("metadata:")
 
     # metadata.author (new)
-    lines.append("  author: https://github.com/Jeffallan")
+    lines.append("  author: https://github.com/tsubus")
 
     # metadata.version (new)
     lines.append('  version: "1.0.0"')

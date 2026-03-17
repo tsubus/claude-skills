@@ -3,7 +3,7 @@ name: flutter-expert
 description: Use when building cross-platform applications with Flutter 3+ and Dart. Invoke for widget development, Riverpod/Bloc state management, GoRouter navigation, platform-specific implementations, performance optimization.
 license: MIT
 metadata:
-  author: https://github.com/Jeffallan
+  author: https://github.com/tsubus
   version: "1.1.0"
   domain: frontend
   triggers: Flutter, Dart, widget, Riverpod, Bloc, GoRouter, cross-platform

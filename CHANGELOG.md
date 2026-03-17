@@ -52,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.8] - 2026-02-17
 
 ### Added
-- 🎉 **Milestone:** Appeared on [GitHub Weekly Trending](https://github.com/Jeffallan/claude-skills/discussions/148) repos (#8 overall)
+- 🎉 **Milestone:** Appeared on [GitHub Weekly Trending](https://github.com/tsubus/claude-skills/discussions/148) repos (#8 overall)
 
 ### Changed
 - Added Agent Skills CLI as alternative installation method in QUICKSTART.md (#151)
@@ -399,23 +399,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Monitoring: Prometheus, Grafana, ELK, DataDog
 - Security: OWASP Top 10, SAST tools
 
-[0.4.10]: https://github.com/jeffallan/claude-skills/compare/v0.4.9...v0.4.10
-[0.4.9]: https://github.com/jeffallan/claude-skills/compare/v0.4.8...v0.4.9
-[0.4.8]: https://github.com/jeffallan/claude-skills/compare/v0.4.7...v0.4.8
-[0.4.7]: https://github.com/jeffallan/claude-skills/compare/v0.4.6...v0.4.7
-[0.4.6]: https://github.com/jeffallan/claude-skills/compare/v0.4.5...v0.4.6
-[0.4.5]: https://github.com/jeffallan/claude-skills/compare/v0.4.4...v0.4.5
-[0.4.4]: https://github.com/jeffallan/claude-skills/compare/v0.4.3...v0.4.4
-[0.4.3]: https://github.com/jeffallan/claude-skills/compare/v0.4.2...v0.4.3
-[0.4.2]: https://github.com/jeffallan/claude-skills/compare/v0.4.1...v0.4.2
-[0.4.1]: https://github.com/jeffallan/claude-skills/compare/v0.4.0...v0.4.1
-[0.4.0]: https://github.com/jeffallan/claude-skills/compare/v0.3.2...v0.4.0
-[0.3.2]: https://github.com/jeffallan/claude-skills/compare/v0.3.1...v0.3.2
-[0.3.1]: https://github.com/jeffallan/claude-skills/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/jeffallan/claude-skills/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/jeffallan/claude-skills/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/jeffallan/claude-skills/compare/v0.0.4...v0.1.0
-[0.0.4]: https://github.com/jeffallan/claude-skills/compare/v0.0.3...v0.0.4
-[0.0.3]: https://github.com/jeffallan/claude-skills/compare/v0.0.2...v0.0.3
-[0.0.2]: https://github.com/jeffallan/claude-skills/compare/v0.0.1...v0.0.2
-[0.0.1]: https://github.com/jeffallan/claude-skills/releases/tag/v0.0.1
+[0.4.10]: https://github.com/tsubus/claude-skills/compare/v0.4.9...v0.4.10
+[0.4.9]: https://github.com/tsubus/claude-skills/compare/v0.4.8...v0.4.9
+[0.4.8]: https://github.com/tsubus/claude-skills/compare/v0.4.7...v0.4.8
+[0.4.7]: https://github.com/tsubus/claude-skills/compare/v0.4.6...v0.4.7
+[0.4.6]: https://github.com/tsubus/claude-skills/compare/v0.4.5...v0.4.6
+[0.4.5]: https://github.com/tsubus/claude-skills/compare/v0.4.4...v0.4.5
+[0.4.4]: https://github.com/tsubus/claude-skills/compare/v0.4.3...v0.4.4
+[0.4.3]: https://github.com/tsubus/claude-skills/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/tsubus/claude-skills/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/tsubus/claude-skills/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/tsubus/claude-skills/compare/v0.3.2...v0.4.0
+[0.3.2]: https://github.com/tsubus/claude-skills/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/tsubus/claude-skills/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/tsubus/claude-skills/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/tsubus/claude-skills/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/tsubus/claude-skills/compare/v0.0.4...v0.1.0
+[0.0.4]: https://github.com/tsubus/claude-skills/compare/v0.0.3...v0.0.4
+[0.0.3]: https://github.com/tsubus/claude-skills/compare/v0.0.2...v0.0.3
+[0.0.2]: https://github.com/tsubus/claude-skills/compare/v0.0.1...v0.0.2
+[0.0.1]: https://github.com/tsubus/claude-skills/releases/tag/v0.0.1

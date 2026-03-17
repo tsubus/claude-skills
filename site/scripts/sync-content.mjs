@@ -15,7 +15,7 @@ const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const DOCS_DIR = path.resolve(import.meta.dirname, '..', 'src', 'content', 'docs');
 const PUBLIC_DIR = path.resolve(import.meta.dirname, '..', 'public');
 
-const GITHUB_BLOB = 'https://github.com/jeffallan/claude-skills/blob/main';
+const GITHUB_BLOB = 'https://github.com/tsubus/claude-skills/blob/main';
 const BASE_PATH = '/claude-skills';
 
 const pageManifest = []; // { siteUrl, title, description, category, contentFile }
@@ -564,11 +564,11 @@ Transform Claude Code into your expert pair programmer across the entire develop
 ## Quick Install
 
 \`\`\`bash
-/plugin marketplace add jeffallan/claude-skills
+/plugin marketplace add tsubus/claude-skills
 \`\`\`
 
 \`\`\`bash
-/plugin install fullstack-dev-skills@jeffallan
+/plugin install fullstack-dev-skills@tsubus
 \`\`\`
 
 ## Stats
