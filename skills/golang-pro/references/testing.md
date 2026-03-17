@@ -1,11 +1,21 @@
 # Testing and Benchmarking
 
+## Installation
+
+```bash
+go get github.com/stretchr/testify
+```
+
 ## Table-Driven Tests
 
 ```go
 package math
 
-import "testing"
+import (
+    "testing"
+
+    "github.com/stretchr/testify/assert"
+)
 
 func Add(a, b int) int {
     return a + b
@@ -27,9 +37,7 @@ func TestAdd(t *testing.T) {
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             result := Add(tt.a, tt.b)
-            if result != tt.expected {
-                t.Errorf("Add(%d, %d) = %d; want %d", tt.a, tt.b, result, tt.expected)
-            }
+            assert.Equal(t, tt.expected, result, "Add(%d, %d)", tt.a, tt.b)
         })
     }
 }
@@ -55,9 +63,7 @@ func TestParallel(t *testing.T) {
             t.Parallel() // Run subtests in parallel
 
             result := strings.ToUpper(tt.input)
-            if result != tt.want {
-                t.Errorf("got %q, want %q", result, tt.want)
-            }
+            assert.Equal(t, tt.want, result)
         })
     }
 }
@@ -82,9 +88,7 @@ func TestWithSetup(t *testing.T) {
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             err := db.SaveUser(tt.user)
-            if err != nil {
-                t.Fatalf("SaveUser failed: %v", err)
-            }
+            require.NoError(t, err, "SaveUser failed")
         })
     }
 }
@@ -94,18 +98,14 @@ func setupTestDB(t *testing.T) *DB {
     t.Helper()
 
     db, err := NewDB(":memory:")
-    if err != nil {
-        t.Fatalf("failed to create test DB: %v", err)
-    }
+    require.NoError(t, err, "failed to create test DB")
     return db
 }
 
 func cleanupTestDB(t *testing.T, db *DB) {
     t.Helper()
 
-    if err := db.Close(); err != nil {
-        t.Errorf("failed to close DB: %v", err)
-    }
+    require.NoError(t, db.Close(), "failed to close DB")
 }
 ```
 
@@ -119,40 +119,75 @@ type EmailSender interface {
 
 // Mock implementation
 type MockEmailSender struct {
-    SentEmails []Email
-    ShouldFail bool
-}
-
-type Email struct {
-    To, Subject, Body string
+    mock.Mock
 }
 
 func (m *MockEmailSender) Send(to, subject, body string) error {
-    if m.ShouldFail {
-        return fmt.Errorf("failed to send email")
-    }
-    m.SentEmails = append(m.SentEmails, Email{to, subject, body})
-    return nil
+    args := m.Called(to, subject, body)
+    return args.Error(0)
 }
 
 // Test using mock
 func TestUserService_Register(t *testing.T) {
-    mockSender := &MockEmailSender{}
+    mockSender := new(MockEmailSender)
     service := NewUserService(mockSender)
 
+    mockSender.On("Send", "user@example.com", mock.Anything, mock.Anything).
+        Return(nil)
+
     err := service.Register("user@example.com")
-    if err != nil {
-        t.Fatalf("Register failed: %v", err)
-    }
+    require.NoError(t, err)
 
-    if len(mockSender.SentEmails) != 1 {
-        t.Errorf("expected 1 email sent, got %d", len(mockSender.SentEmails))
-    }
+    mockSender.AssertExpectations(t)
+}
+```
 
-    email := mockSender.SentEmails[0]
-    if email.To != "user@example.com" {
-        t.Errorf("expected email to user@example.com, got %s", email.To)
-    }
+## Suite Package for Test Suites
+
+```go
+import (
+    "testing"
+
+    "github.com/stretchr/testify/suite"
+)
+
+type UserServiceTestSuite struct {
+    suite.Suite
+    db     *DB
+    service *UserService
+}
+
+func (s *UserServiceTestSuite) SetupSuite() {
+    // Run once before all tests
+    s.db = setupDB()
+}
+
+func (s *UserServiceTestSuite) TearDownSuite() {
+    // Run once after all tests
+    s.db.Close()
+}
+
+func (s *UserServiceTestSuite) SetupTest() {
+    // Run before each test
+    s.service = NewUserService(s.db)
+}
+
+func (s *UserServiceTestSuite) TestCreateUser() {
+    user, err := s.service.CreateUser("john@example.com")
+    s.NoError(err)
+    s.NotNil(user)
+    s.Equal("john@example.com", user.Email)
+}
+
+func (s *UserServiceTestSuite) TestCreateUser_InvalidEmail() {
+    user, err := s.service.CreateUser("invalid")
+    s.Error(err)
+    s.Nil(user)
+    s.Contains(err.Error(), "invalid email")
+}
+
+func TestUserServiceTestSuite(t *testing.T) {
+    suite.Run(t, new(UserServiceTestSuite))
 }
 ```
 
@@ -235,9 +270,7 @@ func FuzzReverse(f *testing.F) {
         reversed := Reverse(input)
         doubleReversed := Reverse(reversed)
 
-        if input != doubleReversed {
-            t.Errorf("Reverse(Reverse(%q)) = %q, want %q", input, doubleReversed, input)
-        }
+        assert.Equal(t, input, doubleReversed, "Reverse(Reverse(x)) should equal x")
     })
 }
 
@@ -251,8 +284,8 @@ func FuzzAdd(f *testing.F) {
         result := Add(a, b)
 
         // Properties that should always hold
-        if result < a && b >= 0 {
-            t.Errorf("Add(%d, %d) = %d; result should be >= a when b >= 0", a, b, result)
+        if b >= 0 {
+            assert.GreaterOrEqual(t, result, a, "result should be >= a when b >= 0")
         }
     })
 }
@@ -280,9 +313,7 @@ func TestCalculate(t *testing.T) {
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             result := Calculate(tt.input)
-            if result != tt.expected {
-                t.Errorf("Calculate(%d) = %d; want %d", tt.input, result, tt.expected)
-            }
+            assert.Equal(t, tt.expected, result, "Calculate(%d)", tt.input)
         })
     }
 }
@@ -327,9 +358,7 @@ func TestConcurrentAccessSafe(t *testing.T) {
 
     wg.Wait()
 
-    if counter != 10 {
-        t.Errorf("expected 10, got %d", counter)
-    }
+    assert.Equal(t, 10, counter)
 }
 ```
 
@@ -337,9 +366,13 @@ func TestConcurrentAccessSafe(t *testing.T) {
 
 ```go
 import (
+    "flag"
     "os"
     "path/filepath"
     "testing"
+
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/require"
 )
 
 func TestRenderHTML(t *testing.T) {
@@ -354,13 +387,9 @@ func TestRenderHTML(t *testing.T) {
     }
 
     expected, err := os.ReadFile(goldenFile)
-    if err != nil {
-        t.Fatalf("failed to read golden file: %v", err)
-    }
+    require.NoError(t, err, "failed to read golden file")
 
-    if result != string(expected) {
-        t.Errorf("output doesn't match golden file\ngot:\n%s\nwant:\n%s", result, expected)
-    }
+    assert.Equal(t, string(expected), result, "output doesn't match golden file")
 }
 
 var update = flag.Bool("update", false, "update golden files")
@@ -370,13 +399,16 @@ var update = flag.Bool("update", false, "update golden files")
 
 ```go
 // integration_test.go
-// +build integration
+//go:build integration
 
 package myapp
 
 import (
     "testing"
     "time"
+
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/require"
 )
 
 func TestIntegration(t *testing.T) {
@@ -392,13 +424,9 @@ func TestIntegration(t *testing.T) {
 
     client := NewClient(server.URL)
     resp, err := client.Get("/health")
-    if err != nil {
-        t.Fatalf("health check failed: %v", err)
-    }
+    require.NoError(t, err, "health check failed")
 
-    if resp.Status != "ok" {
-        t.Errorf("expected status ok, got %s", resp.Status)
-    }
+    assert.Equal(t, "ok", resp.Status)
 }
 
 // Run: go test -tags=integration
@@ -434,6 +462,30 @@ func ExampleKeys() {
     // c
 }
 ```
+
+## Common Assertions Quick Reference
+
+| Assertion | Description |
+|-----------|-------------|
+| `assert.Equal(t, expected, actual)` | Values are equal |
+| `assert.NotEqual(t, unexpected, actual)` | Values are not equal |
+| `assert.True(t, condition)` | Condition is true |
+| `assert.False(t, condition)` | Condition is false |
+| `assert.Nil(t, obj)` | Object is nil |
+| `assert.NotNil(t, obj)` | Object is not nil |
+| `require.Error(t, err)` | Error is not nil |
+| `require.NoError(t, err)` | Error is nil |
+| `assert.Contains(t, slice, item)` | Slice/map contains item |
+| `assert.Len(t, slice, length)` | Slice has length |
+| `assert.Empty(t, obj)` | Object is empty |
+| `assert.Greater(t, a, b)` | a > b |
+| `assert.Less(t, a, b)` | a < b |
+| `assert.Regexp(t, pattern, str)` | String matches regex |
+| `assert.JSONEq(t, expected, actual)` | JSON strings are equal |
+| `assert.ElementsMatch(t, a, b)` | Slices have same elements |
+| `assert.InDelta(t, expected, actual, delta)` | Floats within delta |
+
+**Note:** Use `require.*` variants to stop test immediately on failure.
 
 ## Quick Reference
 
