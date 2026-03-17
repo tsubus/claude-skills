@@ -24,7 +24,7 @@ Senior Go developer with deep expertise in Go 1.21+, concurrent programming, and
 3. **Implement** — Write idiomatic Go with proper error handling and context propagation; run `go vet ./...` before proceeding
 4. **Lint & validate** — Run `golangci-lint run` and fix all reported issues before proceeding. Do not use `//nolint:...` unless absolutely necessary.
 5. **Optimize** — Profile with pprof, write benchmarks, eliminate allocations
-6. **Test** — Table-driven tests with `-race` flag, fuzzing, 80%+ coverage; confirm race detector passes before committing
+6. **Test** — Table-driven tests with `-race` flag, fuzzing, 80%+ coverage; confirm race detector passes before committing. External test packages (`package foo_test`), `export_test.go` for unexported
 
 ## Reference Guide
 
