@@ -4,15 +4,11 @@
 
 ```
 myproject/
-├── cmd/                    # Main applications
-│   ├── server/
-│   │   └── main.go        # Entry point for server
-│   └── cli/
-│       └── main.go        # Entry point for CLI tool
+├── cmd/                  # Commands, config structs, root wiring (Cobra)
 ├── internal/              # Private application code
-│   ├── api/              # API handlers
-│   ├── service/          # Business logic
-│   └── repository/       # Data access layer
+│   ├── app/              # Business logic
+│   ├── repository/       # Data access layer
+│   └── web/              # API handlers
 ├── pkg/                   # Public library code
 │   └── models/           # Shared models
 ├── api/                   # API definitions
@@ -24,11 +20,11 @@ myproject/
 ├── scripts/               # Build and install scripts
 ├── configs/              # Configuration files
 ├── deployments/          # Docker, K8s configs
-├── test/                 # Additional test data
 ├── docs/                 # Documentation
 ├── go.mod               # Module definition
 ├── go.sum               # Dependency checksums
-├── Makefile             # Build automation
+├── main.go               # Entry point (build version, delegates to cmd)
+├── Taskfile.yaml         # Build automation
 └── README.md
 ```
 
@@ -36,26 +32,54 @@ myproject/
 
 ```go
 // Initialize module
-// go mod init github.com/user/project
+// go mod init gitlab.com/user/project
 
-module github.com/user/myproject
+module gitlab.com/user/myproject
 
-go 1.21
+go 1.26
 
 require (
-    github.com/gin-gonic/gin v1.9.1
-    github.com/lib/pq v1.10.9
-    go.uber.org/zap v1.26.0
+	github.com/containrrr/shoutrrr v0.4.5-0.20251218173108-262ac52fc3b2
+	github.com/danielgtaylor/huma/v2 v2.37.2
+	github.com/go-chi/chi/v5 v5.2.5
+	github.com/go-chi/jwtauth/v5 v5.4.0
+	github.com/lestrrat-go/jwx/v3 v3.0.13
+	github.com/rs/zerolog v1.34.0
+	github.com/sethvargo/go-envconfig v1.3.0
+	github.com/spf13/cobra v1.10.2
+	github.com/stretchr/testify v1.11.1
+	github.com/vmihailenco/msgpack/v5 v5.4.1
+	gitlab.com/tsubus-go/tsubuslog v0.2.1
+	go.etcd.io/bbolt v1.4.3
+	golang.org/x/crypto v0.49.0
 )
 
 require (
-    // Indirect dependencies (automatically managed)
-    github.com/bytedance/sonic v1.9.1 // indirect
-    github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
+	github.com/fatih/color v1.15.0 // indirect
+	github.com/goccy/go-json v0.10.5 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/lestrrat-go/blackmagic v1.0.4 // indirect
+	github.com/lestrrat-go/dsig v1.0.0 // indirect
+	github.com/lestrrat-go/dsig-secp256k1 v1.0.0 // indirect
+	github.com/lestrrat-go/httpcc v1.0.1 // indirect
+	github.com/lestrrat-go/httprc/v3 v3.0.2 // indirect
+	github.com/lestrrat-go/option/v2 v2.0.0 // indirect
+	github.com/mattn/go-colorable v0.1.14 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/segmentio/asm v1.2.1 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
+	github.com/valyala/fastjson v1.6.7 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 // Replace directive for local development
-replace github.com/user/mylib => ../mylib
+replace gitlab.com/user/mylib => ../mylib
 
 // Retract directive to mark bad versions
 retract v1.0.1 // Contains critical bug
@@ -65,7 +89,7 @@ retract v1.0.1 // Contains critical bug
 
 ```bash
 # Initialize module
-go mod init github.com/user/project
+go mod init gitlab.com/user/project
 
 # Add missing dependencies
 go mod tidy
@@ -80,16 +104,16 @@ go mod verify
 go mod graph
 
 # Show why package is needed
-go mod why github.com/user/package
+go mod why gitlab.com/user/package
 
 # Vendor dependencies (copy to vendor/)
 go mod vendor
 
 # Update dependency
-go get -u github.com/user/package
+go get -u gitlab.com/user/package
 
 # Update to specific version
-go get github.com/user/package@v1.2.3
+go get gitlab.com/user/package@v1.2.3
 
 # Update all dependencies
 go get -u ./...
@@ -108,13 +132,13 @@ myproject/
 │   ├── auth/           # Can only be imported by myproject
 │   │   └── jwt.go
 │   └── database/
-│       └── postgres.go
+│       └── database.go
 └── pkg/
     └── models/         # Can be imported by anyone
         └── user.go
 
 // This works (same project):
-import "github.com/user/myproject/internal/auth"
+import "gitlab.com/user/myproject/internal/auth"
 
 // This fails (different project):
 import "github.com/other/project/internal/auth" // Error!
@@ -190,7 +214,7 @@ monorepo/
         └── user.go
 
 // go.work
-go 1.21
+go 1.26
 
 use (
     ./services/api
@@ -238,151 +262,176 @@ package myapp
 // cgo, !cgo
 ```
 
-## Makefile Example
+## Taskfile Example
 
-```makefile
-# Makefile
-.PHONY: build test lint clean run
+```yaml
+version: "3"
 
-# Variables
-BINARY_NAME=myapp
-BUILD_DIR=bin
-GO=go
-GOFLAGS=-v
+vars:
+  BIN: "{{.ROOT_DIR | toSlash}}/bin"
+  EXT: "{{default exeExt .EXT}}"
+  DEFAULT_APP:
+    sh: basename {{.ROOT_DIR | toSlash}} -dev | tr '[:upper:]' '[:lower:]'
+  GOFLAGS: -gcflags=-trimpath={{.ROOT_DIR | toSlash}} -asmflags=-trimpath={{.ROOT_DIR | toSlash}} -tags timetzdata {{.GO_VENDOR | default "-mod=vendor"}}
+  LDFLAGS: -ldflags "-w -s -X main.BuildRevision=$REVISION -X main.BuildDate={{now | date "2006-01-02T15:04:05Z07:00"}} -X main.BuildTag=$TAG"
 
-# Build the application
-build:
-	$(GO) build $(GOFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd/server
+env:
+  CGO_ENABLED: "0"
+  GOOS: "{{default OS .GOOS}}"
+  GOARCH: "{{default ARCH .GOARCH}}"
 
-# Run tests
-test:
-	$(GO) test -v -race -coverprofile=coverage.out ./...
+  # customize the next 3 variables
+  GO_VENDOR: " " # remove this variable to use vendor folder
+  DOCS_EXTRA_EXCLUDE_DIRS: ",."
+  APP: APPNAME
 
-# Run tests with coverage report
-test-coverage: test
-	$(GO) tool cover -html=coverage.out
+tasks:
+  default:
+    cmds:
+    - task: build
 
-# Run linters
-lint:
-	golangci-lint run ./...
+  build:
+    cmds:
+    - mkdir -p bin
+    - go build {{.GOFLAGS}} {{.LDFLAGS}} -o bin/{{.APP | default .DEFAULT_APP}}{{.EXT}} {{.APP_FOLDER | default "."}}
 
-# Format code
-fmt:
-	$(GO) fmt ./...
-	goimports -w .
+  build:linux:
+    cmds:
+    - task: build
+      vars:
+        EXT: " "
+        GOOS: linux
+        GOARCH: amd64
 
-# Run the application
-run:
-	$(GO) run ./cmd/server
+  build:win:
+    cmds:
+    - task: build
+      vars:
+        EXT: ".exe"
+        GOOS: windows
+        GOARCH: amd64
 
-# Clean build artifacts
-clean:
-	rm -rf $(BUILD_DIR)
-	rm -f coverage.out
+  deploy:
+    vars:
+      DEPLOY_HOST: tsubus@nankatsu
+      DEPLOY_PATH: /home/tsubus/bin
+    env:
+      GOOS: linux
+      GOARCH: amd64
+    cmds:
+    - mkdir -p bin
+    - go build {{.GOFLAGS}} {{.LDFLAGS}} -o bin/{{.APP | default .DEFAULT_APP}} {{.APP_FOLDER | default "."}}
+    - scp bin/{{.APP | default .DEFAULT_APP}} {{.DEPLOY_HOST}}:{{.DEPLOY_PATH}}/{{.APP | default .DEFAULT_APP}}
 
-# Install dependencies
-deps:
-	$(GO) mod download
-	$(GO) mod tidy
+  install:
+    env:
+      REVISION:
+        sh: git rev-parse HEAD
+      TAG:
+        sh: git describe --tags --abbrev=0
+    cmds:
+    - go install {{.GOFLAGS}} {{.LDFLAGS}} {{.APP_FOLDER | default "."}}
 
-# Build for multiple platforms
-build-all:
-	GOOS=linux GOARCH=amd64 $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME)-linux-amd64 ./cmd/server
-	GOOS=darwin GOARCH=amd64 $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME)-darwin-amd64 ./cmd/server
-	GOOS=windows GOARCH=amd64 $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME)-windows-amd64.exe ./cmd/server
+  test:
+    cmds:
+    - go test -v ./...
 
-# Run with race detector
-run-race:
-	$(GO) run -race ./cmd/server
+  test:race:
+    cmds:
+    - CGO_ENABLED=1 go test -race -v ./...
 
-# Generate code
-generate:
-	$(GO) generate ./...
+  test:cover:
+    cmds:
+    - go test -cover html=coverage.out ./...
 
-# Docker build
-docker-build:
-	docker build -t $(BINARY_NAME):latest .
+  test:integration:
+    dotenv: ['.env']
+    cmds:
+    - INTEGRATION=1 go test -v ./...
 
-# Help
-help:
-	@echo "Available targets:"
-	@echo "  build         - Build the application"
-	@echo "  test          - Run tests"
-	@echo "  test-coverage - Run tests with coverage report"
-	@echo "  lint          - Run linters"
-	@echo "  fmt           - Format code"
-	@echo "  run           - Run the application"
-	@echo "  clean         - Clean build artifacts"
-	@echo "  deps          - Install dependencies"
+  lint:
+    cmds:
+    - cmd: golangci-lint run -v
+
+  lint:fix:
+    cmds:
+    - cmd: golangci-lint run --fix -v
+
+  docs:
+    cmds:
+    # go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
+    - gomarkdoc -f plain --output '{{"{{"}}.Dir{{"}}"}}/README.md' --exclude-dirs .../testdata/...,./vendor/...,./bin/...{{.DOCS_EXTRA_EXCLUDE_DIRS}} -e ./...
+
+  openapi:
+    cmds:
+    - go run . openapi > openapi.yaml
 ```
 
 ## Dockerfile Multi-Stage Build
 
 ```dockerfile
-# Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:latest as builder
 
 WORKDIR /app
 
-# Copy go mod files
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Copy source code
 COPY . .
 
-# Build binary
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server ./cmd/server
+ARG CI_SERVER_PROTOCOL
+ARG CI_JOB_TOKEN
+ARG CI_SERVER_HOST
+ARG CI_COMMIT_SHA
+ARG CI_COMMIT_TAG
 
-# Final stage
-FROM alpine:latest
+RUN \
+  sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin && \
+  git config --global --add url."$CI_SERVER_PROTOCOL://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/tsubus-root/go".insteadOf "$CI_SERVER_PROTOCOL://$CI_SERVER_HOST/tsubus-go" && \
+  REVISION=${CI_COMMIT_SHA} \
+  TAG=${CI_COMMIT_TAG} \
+  task build
 
-RUN apk --no-cache add ca-certificates
+FROM scratch
 
-WORKDIR /root/
+# copy app binary
+COPY --from=builder /app/bin/ /usr/bin/
 
-# Copy binary from builder
-COPY --from=builder /app/server .
+# copy certificates
+COPY --from=builder /etc/ssl/certs/ /etc/ssl/certs/
+COPY --from=builder /usr/local/share/ca-certificates/ /usr/local/share/ca-certificates/
+COPY --from=builder /usr/share/ca-certificates/ /usr/share/ca-certificates
 
-# Copy config files if needed
-COPY --from=builder /app/configs ./configs
-
-EXPOSE 8080
-
-CMD ["./server"]
+ENTRYPOINT [ "/usr/bin/lobstarr" ]
+CMD [ "run" ]
 ```
 
 ## Version Information
 
 ```go
-// version/version.go
-package version
+// main.go
+package main
 
-import "runtime"
+import (
+	"os"
 
-var (
-    // Set via ldflags during build
-    Version   = "dev"
-    GitCommit = "none"
-    BuildTime = "unknown"
+	"gitlab.com/user/project/cmd"
 )
 
-// Info returns version information
-func Info() map[string]string {
-    return map[string]string{
-        "version":    Version,
-        "git_commit": GitCommit,
-        "build_time": BuildTime,
-        "go_version": runtime.Version(),
-        "os":         runtime.GOOS,
-        "arch":       runtime.GOARCH,
-    }
+//nolint:gochecknoglobals // Set by ldflags during build
+var (
+	BuildRevision string
+	BuildDate     string
+	BuildTag      string
+)
+
+func main() {
+	if err := cmd.Execute(BuildRevision, BuildDate, BuildTag); err != nil {
+		os.Exit(1)
+	}
 }
 
 // Build with version info:
-// go build -ldflags "-X github.com/user/project/version.Version=1.0.0 \
-//   -X github.com/user/project/version.GitCommit=$(git rev-parse HEAD) \
-//   -X github.com/user/project/version.BuildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+// go build -ldflags "-X gitlab.com/user/project/version.BuildTag=1.0.0 \
+//   -X gitlab.com/user/project/version.BuildRevision=$(git rev-parse HEAD) \
+//   -X gitlab.com/user/project/version.BuildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 ```
 
 ## Go Generate
@@ -422,10 +471,10 @@ import (
 package config
 
 import (
-    "os"
+    "context"
     "time"
 
-    "github.com/kelseyhightower/envconfig"
+    "github.com/sethvargo/go-envconfig"
 )
 
 type Config struct {
@@ -435,28 +484,29 @@ type Config struct {
 }
 
 type ServerConfig struct {
-    Host         string        `envconfig:"SERVER_HOST" default:"0.0.0.0"`
-    Port         int           `envconfig:"SERVER_PORT" default:"8080"`
-    ReadTimeout  time.Duration `envconfig:"SERVER_READ_TIMEOUT" default:"10s"`
-    WriteTimeout time.Duration `envconfig:"SERVER_WRITE_TIMEOUT" default:"10s"`
+    Host         string        `env:"SERVER_HOST,default=0.0.0.0"`
+    Port         int           `env:"SERVER_PORT,default=8080"`
+    ReadTimeout  time.Duration `env:"SERVER_READ_TIMEOUT,default=10s"`
+    WriteTimeout time.Duration `env:"SERVER_WRITE_TIMEOUT,default=10s"`
 }
 
 type DatabaseConfig struct {
-    URL          string `envconfig:"DATABASE_URL" required:"true"`
-    MaxOpenConns int    `envconfig:"DB_MAX_OPEN_CONNS" default:"25"`
-    MaxIdleConns int    `envconfig:"DB_MAX_IDLE_CONNS" default:"5"`
+    URL          string `env:"DATABASE_URL,required"`
+    MaxOpenConns int    `env:"DB_MAX_OPEN_CONNS,default=25"`
+    MaxIdleConns int    `env:"DB_MAX_IDLE_CONNS,default=5"`
 }
 
 type RedisConfig struct {
-    Addr     string `envconfig:"REDIS_ADDR" default:"localhost:6379"`
-    Password string `envconfig:"REDIS_PASSWORD"`
-    DB       int    `envconfig:"REDIS_DB" default:"0"`
+    Addr     string `env:"REDIS_ADDR,default=localhost:6379"`
+    Password string `env:"REDIS_PASSWORD"`
+    DB       int    `env:"REDIS_DB,default=0"`
 }
 
 // Load loads configuration from environment
 func Load() (*Config, error) {
+    ctx := context.Background()
     var cfg Config
-    if err := envconfig.Process("", &cfg); err != nil {
+    if err := envconfig.Process(ctx, &cfg); err != nil {
         return nil, err
     }
     return &cfg, nil

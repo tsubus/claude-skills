@@ -91,7 +91,7 @@ Key properties demonstrated: bounded goroutine lifetime via `ctx`, error propaga
 ## Constraints
 
 ### MUST DO
-- Use gofmt and golangci-lint on all code
+- Use gci and golangci-lint on all code
 - Add context.Context to all blocking operations
 - Handle all errors explicitly (no naked returns)
 - Write table-driven tests with subtests
