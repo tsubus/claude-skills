@@ -465,7 +465,7 @@ import (
 
 ## Configuration Management
 
-Use `github.com/sethvargo/go-envconfig`. Set all configuration options by environment variables.
+Use `github.com/sethvargo/go-envconfig`. Set all configuration options by environment variables with prefix `APPNAME_`.
 
 ```go
 // config/config.go
