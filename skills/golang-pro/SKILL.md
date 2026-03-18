@@ -121,6 +121,16 @@ When implementing Go features, provide:
 3. Test file with table-driven tests
 4. Brief explanation of concurrency patterns used
 
+## Generic tech stack
+
+- cmd: `cobra`: github.com/spf13/cobra
+- config: `go-envconfig`: github.com/sethvargo/go-envconfig
+- logger: `zerolog`: github.com/rs/zerolog
+- API wrapper: `huma`: github.com/danielgtaylor/huma/v2
+- HTTP router: `chi`: github.com/go-chi/chi/v5
+- database: `bbolt`: go.etcd.io/bbolt
+- testing framework: `testify`: github.com/stretchr/testify
+
 ## Code Intelligence
 
 Always use LSP over grep/ripgrep when available:

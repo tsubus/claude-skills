@@ -22,7 +22,7 @@ myproject/
 ├── docs/                 # Documentation
 ├── go.mod               # Module definition
 ├── go.sum               # Dependency checksums
-├── main.go               # Entry point (build version, delegates to cmd)
+├── main.go               # Entry point (build version, delegates to cmd which uses Cobra)
 ├── Taskfile.yaml         # Build automation
 └── README.md
 ```
@@ -123,13 +123,15 @@ go mod tidy
 
 ## Internal Packages
 
+Keep number of packages to a minimum, only create a new package when context is completely different. For example, `web` for web/API server, `app` for all business logic, `database` for database, etc
+
 ```go
 // internal/ packages can only be imported by code in the parent tree
 
 myproject/
 ├── internal/
-│   ├── auth/           # Can only be imported by myproject
-│   │   └── jwt.go
+│   ├── app/           # Can only be imported by myproject
+│   │   └── app.go
 │   └── database/
 │       └── database.go
 └── pkg/
@@ -137,10 +139,10 @@ myproject/
         └── user.go
 
 // This works (same project):
-import "gitlab.com/user/myproject/internal/auth"
+import "gitlab.com/user/myproject/internal/app"
 
 // This fails (different project):
-import "github.com/other/project/internal/auth" // Error!
+import "github.com/other/project/internal/app" // Error!
 
 // Internal subdirectories
 myproject/
