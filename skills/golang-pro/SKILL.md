@@ -4,7 +4,7 @@ description: Implements concurrent Go patterns using goroutines and channels, de
 license: MIT
 metadata:
   author: https://github.com/tsubus
-  version: "1.1.0"
+  version: '1.1.0'
   domain: language
   triggers: Go, Golang, goroutines, channels, gRPC, microservices Go, Go generics, concurrent programming, Go interfaces
   role: specialist
@@ -22,7 +22,7 @@ Senior Go developer with deep expertise in Go 1.21+, concurrent programming, and
 1. **Analyze architecture** — Review module structure, interfaces, and concurrency patterns
 2. **Design interfaces** — Create small, focused interfaces with composition
 3. **Implement** — Write idiomatic Go with proper error handling and context propagation; run `go vet ./...` before proceeding
-4. **Lint & validate** — Run `golangci-lint run` and fix all reported issues before proceeding. Do not use `//nolint:...` unless absolutely necessary.
+4. **Lint & validate** — Run `golangci-lint run` and fix all reported issues before proceeding. Do not use `//nolint:...` unless absolutely necessary. Do not modify `.golangci.yml`
 5. **Optimize** — Profile with pprof, write benchmarks, eliminate allocations
 6. **Test** — Table-driven tests with `-race` flag, fuzzing, 80%+ coverage; confirm race detector passes before committing. External test packages (`package foo_test`), `export_test.go` for unexported
 
@@ -30,13 +30,13 @@ Senior Go developer with deep expertise in Go 1.21+, concurrent programming, and
 
 Load detailed guidance based on context:
 
-| Topic | Reference | Load When |
-|-------|-----------|-----------|
-| Concurrency | `references/concurrency.md` | Goroutines, channels, select, sync primitives |
-| Interfaces | `references/interfaces.md` | Interface design, io.Reader/Writer, composition |
-| Generics | `references/generics.md` | Type parameters, constraints, generic patterns |
-| Testing | `references/testing.md` | Table-driven tests, benchmarks, fuzzing |
-| Project Structure | `references/project-structure.md` | Module layout, internal packages, go.mod |
+| Topic             | Reference                         | Load When                                       |
+| ----------------- | --------------------------------- | ----------------------------------------------- |
+| Concurrency       | `references/concurrency.md`       | Goroutines, channels, select, sync primitives   |
+| Interfaces        | `references/interfaces.md`        | Interface design, io.Reader/Writer, composition |
+| Generics          | `references/generics.md`          | Type parameters, constraints, generic patterns  |
+| Testing           | `references/testing.md`           | Table-driven tests, benchmarks, fuzzing         |
+| Project Structure | `references/project-structure.md` | Module layout, internal packages, go.mod        |
 
 ## Core Pattern Example
 
@@ -91,6 +91,7 @@ Key properties demonstrated: bounded goroutine lifetime via `ctx`, error propaga
 ## Constraints
 
 ### MUST DO
+
 - Use gci and golangci-lint on all code
 - Add context.Context to all blocking operations
 - Handle all errors explicitly (no naked returns)
@@ -101,21 +102,33 @@ Key properties demonstrated: bounded goroutine lifetime via `ctx`, error propaga
 - Run race detector on tests (-race flag)
 
 ### MUST NOT DO
-- Ignore errors (avoid _ assignment without justification)
+
+- Ignore errors (avoid \_ assignment without justification)
 - Use panic for normal error handling
 - Create goroutines without clear lifecycle management
 - Skip context cancellation handling
 - Use reflection without performance justification
 - Mix sync and async patterns carelessly
 - Hardcode configuration (use functional options or env vars)
+- Co-author or AI information in commits
 
 ## Output Templates
 
 When implementing Go features, provide:
+
 1. Interface definitions (contracts first)
 2. Implementation files with proper package structure
 3. Test file with table-driven tests
 4. Brief explanation of concurrency patterns used
+
+## Code Intelligence
+
+Always use LSP over grep/ripgrep when available:
+
+- `workspaceSymbol` → find definitions
+- `findReferences` → see usages
+- `goToDefinition` / `goToImplementation` → jump to source
+- `hover` → type info without reading files
 
 ## Knowledge Reference
 
