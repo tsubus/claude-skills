@@ -18,7 +18,6 @@ myproject/
 │   ├── static/
 │   └── templates/
 ├── scripts/               # Build and install scripts
-├── configs/              # Configuration files
 ├── deployments/          # Docker, K8s configs
 ├── docs/                 # Documentation
 ├── go.mod               # Module definition
@@ -265,51 +264,51 @@ package myapp
 ## Taskfile Example
 
 ```yaml
-version: "3"
+version: '3'
 
 vars:
-  BIN: "{{.ROOT_DIR | toSlash}}/bin"
-  EXT: "{{default exeExt .EXT}}"
+  BIN: '{{.ROOT_DIR | toSlash}}/bin'
+  EXT: '{{default exeExt .EXT}}'
   DEFAULT_APP:
     sh: basename {{.ROOT_DIR | toSlash}} -dev | tr '[:upper:]' '[:lower:]'
   GOFLAGS: -gcflags=-trimpath={{.ROOT_DIR | toSlash}} -asmflags=-trimpath={{.ROOT_DIR | toSlash}} -tags timetzdata {{.GO_VENDOR | default "-mod=vendor"}}
   LDFLAGS: -ldflags "-w -s -X main.BuildRevision=$REVISION -X main.BuildDate={{now | date "2006-01-02T15:04:05Z07:00"}} -X main.BuildTag=$TAG"
 
 env:
-  CGO_ENABLED: "0"
-  GOOS: "{{default OS .GOOS}}"
-  GOARCH: "{{default ARCH .GOARCH}}"
+  CGO_ENABLED: '0'
+  GOOS: '{{default OS .GOOS}}'
+  GOARCH: '{{default ARCH .GOARCH}}'
 
   # customize the next 3 variables
-  GO_VENDOR: " " # remove this variable to use vendor folder
-  DOCS_EXTRA_EXCLUDE_DIRS: ",."
+  GO_VENDOR: ' ' # remove this variable to use vendor folder
+  DOCS_EXTRA_EXCLUDE_DIRS: ',.'
   APP: APPNAME
 
 tasks:
   default:
     cmds:
-    - task: build
+      - task: build
 
   build:
     cmds:
-    - mkdir -p bin
-    - go build {{.GOFLAGS}} {{.LDFLAGS}} -o bin/{{.APP | default .DEFAULT_APP}}{{.EXT}} {{.APP_FOLDER | default "."}}
+      - mkdir -p bin
+      - go build {{.GOFLAGS}} {{.LDFLAGS}} -o bin/{{.APP | default .DEFAULT_APP}}{{.EXT}} {{.APP_FOLDER | default "."}}
 
   build:linux:
     cmds:
-    - task: build
-      vars:
-        EXT: " "
-        GOOS: linux
-        GOARCH: amd64
+      - task: build
+        vars:
+          EXT: ' '
+          GOOS: linux
+          GOARCH: amd64
 
   build:win:
     cmds:
-    - task: build
-      vars:
-        EXT: ".exe"
-        GOOS: windows
-        GOARCH: amd64
+      - task: build
+        vars:
+          EXT: '.exe'
+          GOOS: windows
+          GOARCH: amd64
 
   deploy:
     vars:
@@ -319,9 +318,9 @@ tasks:
       GOOS: linux
       GOARCH: amd64
     cmds:
-    - mkdir -p bin
-    - go build {{.GOFLAGS}} {{.LDFLAGS}} -o bin/{{.APP | default .DEFAULT_APP}} {{.APP_FOLDER | default "."}}
-    - scp bin/{{.APP | default .DEFAULT_APP}} {{.DEPLOY_HOST}}:{{.DEPLOY_PATH}}/{{.APP | default .DEFAULT_APP}}
+      - mkdir -p bin
+      - go build {{.GOFLAGS}} {{.LDFLAGS}} -o bin/{{.APP | default .DEFAULT_APP}} {{.APP_FOLDER | default "."}}
+      - scp bin/{{.APP | default .DEFAULT_APP}} {{.DEPLOY_HOST}}:{{.DEPLOY_PATH}}/{{.APP | default .DEFAULT_APP}}
 
   install:
     env:
@@ -330,41 +329,41 @@ tasks:
       TAG:
         sh: git describe --tags --abbrev=0
     cmds:
-    - go install {{.GOFLAGS}} {{.LDFLAGS}} {{.APP_FOLDER | default "."}}
+      - go install {{.GOFLAGS}} {{.LDFLAGS}} {{.APP_FOLDER | default "."}}
 
   test:
     cmds:
-    - go test -v ./...
+      - go test -v ./...
 
   test:race:
     cmds:
-    - CGO_ENABLED=1 go test -race -v ./...
+      - CGO_ENABLED=1 go test -race -v ./...
 
   test:cover:
     cmds:
-    - go test -cover html=coverage.out ./...
+      - go test -cover html=coverage.out ./...
 
   test:integration:
     dotenv: ['.env']
     cmds:
-    - INTEGRATION=1 go test -v ./...
+      - INTEGRATION=1 go test -v ./...
 
   lint:
     cmds:
-    - cmd: golangci-lint run -v
+      - cmd: golangci-lint run -v
 
   lint:fix:
     cmds:
-    - cmd: golangci-lint run --fix -v
+      - cmd: golangci-lint run --fix -v
 
   docs:
     cmds:
-    # go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
-    - gomarkdoc -f plain --output '{{"{{"}}.Dir{{"}}"}}/README.md' --exclude-dirs .../testdata/...,./vendor/...,./bin/...{{.DOCS_EXTRA_EXCLUDE_DIRS}} -e ./...
+      # go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
+      - gomarkdoc -f plain --output '{{"{{"}}.Dir{{"}}"}}/README.md' --exclude-dirs .../testdata/...,./vendor/...,./bin/...{{.DOCS_EXTRA_EXCLUDE_DIRS}} -e ./...
 
   openapi:
     cmds:
-    - go run . openapi > openapi.yaml
+      - go run . openapi > openapi.yaml
 ```
 
 ## Dockerfile Multi-Stage Build
@@ -466,6 +465,8 @@ import (
 
 ## Configuration Management
 
+Use `github.com/sethvargo/go-envconfig`. Set all configuration options by environment variables.
+
 ```go
 // config/config.go
 package config
@@ -515,13 +516,13 @@ func Load() (*Config, error) {
 
 ## Quick Reference
 
-| Command | Description |
-|---------|-------------|
-| `go mod init` | Initialize module |
-| `go mod tidy` | Add/remove dependencies |
-| `go mod download` | Download dependencies |
-| `go get package@version` | Add/update dependency |
-| `go build -ldflags "-X ..."` | Set version info |
-| `go generate ./...` | Run code generation |
-| `GOOS=linux go build` | Cross-compile |
-| `go work init` | Initialize workspace |
+| Command                      | Description             |
+| ---------------------------- | ----------------------- |
+| `go mod init`                | Initialize module       |
+| `go mod tidy`                | Add/remove dependencies |
+| `go mod download`            | Download dependencies   |
+| `go get package@version`     | Add/update dependency   |
+| `go build -ldflags "-X ..."` | Set version info        |
+| `go generate ./...`          | Run code generation     |
+| `GOOS=linux go build`        | Cross-compile           |
+| `go work init`               | Initialize workspace    |
