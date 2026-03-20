@@ -111,7 +111,7 @@ Key properties demonstrated: bounded goroutine lifetime via `ctx`, error propaga
 - Use reflection without performance justification
 - Mix sync and async patterns carelessly
 - Hardcode configuration (use functional options or env vars)
-- Co-author or AI information in commits
+- Git commits: never co-author or include AI information
 
 ## Output Templates
 
