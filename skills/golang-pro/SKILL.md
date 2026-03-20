@@ -100,6 +100,7 @@ Key properties demonstrated: bounded goroutine lifetime via `ctx`, error propaga
 - Use `X | Y` union constraints for generics (Go 1.18+)
 - Propagate errors with fmt.Errorf("%w", err)
 - Run race detector on tests (-race flag)
+- No inline code if possible. For example, do not do `if err := func(); err != nil`, but go on a new line to check error in if statement
 
 ### MUST NOT DO
 
@@ -142,4 +143,4 @@ Always use LSP over grep/ripgrep when available:
 
 ## Knowledge Reference
 
-Go 1.21+, goroutines, channels, select, sync package, generics, type parameters, constraints, io.Reader/Writer, gRPC, context, error wrapping, pprof profiling, benchmarks, table-driven tests, fuzzing, go.mod, internal packages, functional options
+Go 1.26+, goroutines, channels, select, sync package, generics, type parameters, constraints, io.Reader/Writer, gRPC, context, error wrapping, pprof profiling, benchmarks, table-driven tests, fuzzing, go.mod, internal packages, functional options
