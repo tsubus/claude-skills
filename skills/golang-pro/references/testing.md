@@ -109,15 +109,22 @@ func cleanupTestDB(t *testing.T, db *DB) {
 }
 ```
 
-## Mocking with Interfaces
+## Mocking with testify/mock
 
 ```go
+import (
+    "testing"
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/mock"
+    "github.com/stretchr/testify/require"
+)
+
 // Interface to mock
 type EmailSender interface {
     Send(to, subject, body string) error
 }
 
-// Mock implementation
+// Mock implementation using testify/mock
 type MockEmailSender struct {
     mock.Mock
 }
@@ -127,16 +134,74 @@ func (m *MockEmailSender) Send(to, subject, body string) error {
     return args.Error(0)
 }
 
-// Test using mock
+// Test using mock with assertions
 func TestUserService_Register(t *testing.T) {
     mockSender := new(MockEmailSender)
     service := NewUserService(mockSender)
 
+    // Set up expectations
     mockSender.On("Send", "user@example.com", mock.Anything, mock.Anything).
-        Return(nil)
+        Return(nil).
+        Once() // Expect exactly one call
 
     err := service.Register("user@example.com")
     require.NoError(t, err)
+
+    // Verify all expectations were met
+    mockSender.AssertExpectations(t)
+}
+
+// Mock with return value variation
+func TestUserService_Register_SendFails(t *testing.T) {
+    mockSender := new(MockEmailSender)
+    service := NewUserService(mockSender)
+
+    mockSender.On("Send", mock.Anything, mock.Anything, mock.Anything).
+        Return(assert.AnError).
+        Once()
+
+    err := service.Register("user@example.com")
+    require.Error(t, err)
+    assert.Contains(t, err.Error(), "failed to send")
+
+    mockSender.AssertExpectations(t)
+}
+
+// Mock with specific argument matching
+func TestUserService_Register_MultipleRecipients(t *testing.T) {
+    mockSender := new(MockEmailSender)
+    service := NewUserService(mockSender)
+
+    // Expect two different calls with different arguments
+    mockSender.On("Send", "user1@example.com", "Welcome", mock.Anything).
+        Return(nil).
+        Once()
+    mockSender.On("Send", "user2@example.com", "Welcome", mock.Anything).
+        Return(nil).
+        Once()
+
+    err := service.RegisterMultiple([]string{"user1@example.com", "user2@example.com"})
+    require.NoError(t, err)
+
+    mockSender.AssertNumberOfCalls(t, "Send", 2)
+}
+
+// Mock with Run to inspect/modify arguments
+func TestUserService_Register_InspectCall(t *testing.T) {
+    mockSender := new(MockEmailSender)
+    service := NewUserService(mockSender)
+
+    var capturedBody string
+    mockSender.On("Send", mock.Anything, mock.Anything, mock.Anything).
+        Run(func(args mock.Arguments) {
+            capturedBody = args.Get(2).(string)
+        }).
+        Return(nil).
+        Once()
+
+    err := service.Register("user@example.com")
+    require.NoError(t, err)
+    assert.Contains(t, capturedBody, "Welcome")
 
     mockSender.AssertExpectations(t)
 }
@@ -463,27 +528,278 @@ func ExampleKeys() {
 }
 ```
 
+## HTTP Testing with testify
+
+```go
+import (
+    "net/http"
+    "net/http/httptest"
+    "testing"
+
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/require"
+)
+
+func TestHandler(t *testing.T) {
+    tests := []struct {
+        name       string
+        method     string
+        path       string
+        wantStatus int
+        wantBody   string
+    }{
+        {
+            name:       "GET success",
+            method:     http.MethodGet,
+            path:       "/api/users",
+            wantStatus: http.StatusOK,
+            wantBody:   `{"users":[]}`,
+        },
+        {
+            name:       "POST invalid body",
+            method:     http.MethodPost,
+            path:       "/api/users",
+            wantStatus: http.StatusBadRequest,
+        },
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            req := httptest.NewRequest(tt.method, tt.path, nil)
+            rec := httptest.NewRecorder()
+
+            handler := NewUserHandler()
+            handler.ServeHTTP(rec, req)
+
+            assert.Equal(t, tt.wantStatus, rec.Code, "status code mismatch")
+            if tt.wantBody != "" {
+                assert.JSONEq(t, tt.wantBody, rec.Body.String(), "response body mismatch")
+            }
+        })
+    }
+}
+
+// Test with request body
+func TestCreateUserHandler(t *testing.T) {
+    body := `{"name":"John","email":"john@example.com"}`
+    req := httptest.NewRequest(http.MethodPost, "/api/users", strings.NewReader(body))
+    req.Header.Set("Content-Type", "application/json")
+    rec := httptest.NewRecorder()
+
+    handler := NewUserHandler()
+    handler.ServeHTTP(rec, req)
+
+    require.Equal(t, http.StatusCreated, rec.Code)
+
+    var resp UserResponse
+    err := json.Unmarshal(rec.Body.Bytes(), &resp)
+    require.NoError(t, err)
+
+    assert.NotEmpty(t, resp.ID, "user ID should be generated")
+    assert.Equal(t, "John", resp.Name)
+    assert.Equal(t, "john@example.com", resp.Email)
+}
+
+// Test with headers and cookies
+func TestAuthenticatedHandler(t *testing.T) {
+    req := httptest.NewRequest(http.MethodGet, "/api/protected", nil)
+    req.AddCookie(&http.Cookie{Name: "session", Value: "valid-token"})
+    rec := httptest.NewRecorder()
+
+    handler := NewProtectedHandler()
+    handler.ServeHTTP(rec, req)
+
+    require.Equal(t, http.StatusOK, rec.Code)
+    assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
+}
+```
+
+## testify/assert vs testify/require
+
+Both packages provide the same assertions, but differ in failure behavior:
+
+```go
+import (
+    "github.com/stretchr/testify/assert"  // Continue on failure
+    "github.com/stretchr/testify/require" // Stop immediately on failure
+)
+
+func TestBothPackages(t *testing.T) {
+    obj, err := CreateObject()
+
+    // Use require for prerequisites - test stops if these fail
+    require.NoError(t, err, "failed to create object")
+    require.NotNil(t, obj, "object should not be nil")
+
+    // Use assert for multiple validations - all run even if one fails
+    assert.Equal(t, "expected", obj.Name)
+    assert.Greater(t, obj.Count, 0)
+    assert.NotEmpty(t, obj.Items)
+}
+```
+
+**Guideline:**
+- Use `require.*` for setup/preconditions (no point continuing if these fail)
+- Use `assert.*` for multiple validations (see all failures at once)
+
+## Advanced testify Features
+
+### Eventually - Async Assertions
+
+```go
+import (
+    "testing"
+    "time"
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/require"
+)
+
+func TestEventually(t *testing.T) {
+    // Test that condition becomes true within timeout
+    done := make(chan bool)
+    go func() {
+        time.Sleep(100 * time.Millisecond)
+        close(done)
+    }()
+
+    require.Eventually(t, func() bool {
+        select {
+        case <-done:
+            return true
+        default:
+            return false
+        }
+    }, 500*time.Millisecond, 10*time.Millisecond, "channel should close within timeout")
+}
+
+func TestNever(t *testing.T) {
+    // Test that condition never becomes true within timeout
+    counter := 0
+    assert.Never(t, func() bool {
+        counter++
+        return counter > 100
+    }, 50*time.Millisecond, 10*time.Millisecond, "counter should not exceed 100")
+}
+```
+
+### Error Assertions
+
+```go
+func TestErrorAssertions(t *testing.T) {
+    // Check error is returned
+    err := DoSomethingThatFails()
+    require.Error(t, err)
+
+    // Check specific error type
+    var customErr *CustomError
+    assert.ErrorAs(t, err, &customErr)
+
+    // Check error message contains substring
+    assert.ErrorContains(t, err, "connection refused")
+
+    // Check error is exactly the expected error
+    expectedErr := errors.New("not found")
+    assert.ErrorIs(t, err, expectedErr)
+}
+```
+
+### Collection Assertions
+
+```go
+func TestCollectionAssertions(t *testing.T) {
+    users := []User{
+        {ID: 1, Name: "Alice"},
+        {ID: 2, Name: "Bob"},
+        {ID: 3, Name: "Charlie"},
+    }
+
+    // Subset checking
+    assert.Subset(t, users, []User{{ID: 1, Name: "Alice"}})
+
+    // Empty assertions
+    assert.NotEmpty(t, users)
+    assert.Empty(t, []int{})
+
+    // Length
+    assert.Len(t, users, 3)
+
+    // Elements match (order independent)
+    assert.ElementsMatch(t, []int{1, 2, 3}, []int{3, 2, 1})
+
+    // Contains
+    assert.Contains(t, users, User{ID: 1, Name: "Alice"})
+
+    // Contains with element predicate
+    assert.True(t, slices.ContainsFunc(users, func(u User) bool {
+        return u.Name == "Bob"
+    }))
+}
+```
+
+### Object Comparison
+
+```go
+func TestObjectComparison(t *testing.T) {
+    user1 := User{ID: 1, Name: "Alice", Email: "alice@example.com"}
+    user2 := User{ID: 1, Name: "Alice", Email: "alice@example.com"}
+    user3 := User{ID: 2, Name: "Bob"}
+
+    // Equality
+    assert.Equal(t, user1, user2)
+    assert.NotEqual(t, user1, user3)
+
+    // Same pointer
+    ptr1 := &user1
+    ptr2 := &user1
+    ptr3 := &user2
+    assert.Same(t, ptr1, ptr2)      // Same underlying object
+    assert.NotSame(t, ptr1, ptr3)   // Different objects
+
+    // Type assertions
+    var i interface{} = "hello"
+    assert.IsType(t, "", i)
+
+    // Implements interface
+    var _ io.Reader = new(bytes.Buffer)
+    assert.Implements(t, (*io.Reader)(nil), new(bytes.Buffer))
+}
+```
+
 ## Common Assertions Quick Reference
 
-| Assertion | Description |
-|-----------|-------------|
-| `assert.Equal(t, expected, actual)` | Values are equal |
-| `assert.NotEqual(t, unexpected, actual)` | Values are not equal |
-| `assert.True(t, condition)` | Condition is true |
-| `assert.False(t, condition)` | Condition is false |
-| `assert.Nil(t, obj)` | Object is nil |
-| `assert.NotNil(t, obj)` | Object is not nil |
-| `require.Error(t, err)` | Error is not nil |
-| `require.NoError(t, err)` | Error is nil |
-| `assert.Contains(t, slice, item)` | Slice/map contains item |
-| `assert.Len(t, slice, length)` | Slice has length |
-| `assert.Empty(t, obj)` | Object is empty |
-| `assert.Greater(t, a, b)` | a > b |
-| `assert.Less(t, a, b)` | a < b |
-| `assert.Regexp(t, pattern, str)` | String matches regex |
-| `assert.JSONEq(t, expected, actual)` | JSON strings are equal |
-| `assert.ElementsMatch(t, a, b)` | Slices have same elements |
-| `assert.InDelta(t, expected, actual, delta)` | Floats within delta |
+| Assertion | Package | Description |
+|-----------|---------|-------------|
+| `assert.Equal(t, expected, actual)` | assert/require | Values are equal |
+| `assert.NotEqual(t, unexpected, actual)` | assert/require | Values are not equal |
+| `assert.True(t, condition)` | assert/require | Condition is true |
+| `assert.False(t, condition)` | assert/require | Condition is false |
+| `assert.Nil(t, obj)` | assert/require | Object is nil |
+| `assert.NotNil(t, obj)` | assert/require | Object is not nil |
+| `assert.Error(t, err)` | assert/require | Error is not nil |
+| `assert.NoError(t, err)` | assert/require | Error is nil |
+| `assert.ErrorContains(t, err, substr)` | assert/require | Error contains substring |
+| `assert.ErrorIs(t, err, target)` | assert/require | Error is/is wrapped target |
+| `assert.ErrorAs(t, err, &target)` | assert/require | Error can be assigned to target type |
+| `assert.Contains(t, slice, item)` | assert/require | Slice/map/string contains item |
+| `assert.NotContains(t, slice, item)` | assert/require | Slice/map/string does not contain item |
+| `assert.Len(t, slice, length)` | assert/require | Slice/map has length |
+| `assert.Empty(t, obj)` | assert/require | Object is zero value |
+| `assert.NotEmpty(t, obj)` | assert/require | Object is not zero value |
+| `assert.Greater(t, a, b)` | assert/require | a > b |
+| `assert.GreaterOrEqual(t, a, b)` | assert/require | a >= b |
+| `assert.Less(t, a, b)` | assert/require | a < b |
+| `assert.LessOrEqual(t, a, b)` | assert/require | a <= b |
+| `assert.Regexp(t, pattern, str)` | assert/require | String matches regex |
+| `assert.JSONEq(t, expected, actual)` | assert/require | JSON strings are equal (ignores key order) |
+| `assert.ElementsMatch(t, a, b)` | assert/require | Slices have same elements (order independent) |
+| `assert.InDelta(t, expected, actual, delta)` | assert/require | Floats within delta |
+| `assert.Same(t, a, b)` | assert/require | Pointers refer to same object |
+| `assert.NotSame(t, a, b)` | assert/require | Pointers refer to different objects |
+| `assert.Implements(t, iface, obj)` | assert/require | Object implements interface |
+| `assert.IsType(t, expectedType, obj)` | assert/require | Object is of expected type |
+| `assert.Subset(t, slice, subset)` | assert/require | Slice contains all elements of subset |
+| `assert.Eventually(t, fn, timeout, tick)` | require | Condition becomes true within timeout |
+| `assert.Never(t, fn, timeout, tick)` | assert | Condition never becomes true within timeout |
 
 **Note:** Use `require.*` variants to stop test immediately on failure.
 
