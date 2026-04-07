@@ -1,5 +1,39 @@
 # Docker Patterns
 
+## Multi-stage Dockerfile (Go)
+
+```dockerfile
+FROM golang:bookworm as builder
+
+WORKDIR /app
+
+COPY . .
+
+ARG CI_SERVER_PROTOCOL
+ARG CI_JOB_TOKEN
+ARG CI_SERVER_HOST
+ARG CI_COMMIT_SHA
+ARG CI_COMMIT_TAG
+
+RUN \
+  echo "**** install dependencies ****" && \
+  go version && \
+  sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin && \
+  git config --global --add url."$CI_SERVER_PROTOCOL://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/tsubus-root/go".insteadOf "$CI_SERVER_PROTOCOL://$CI_SERVER_HOST/tsubus-go" && \
+  REVISION=${CI_COMMIT_SHA} \
+  TAG=${CI_COMMIT_TAG} \
+  task build
+
+FROM gcr.io/distroless/cc-debian12:nonroot
+
+# copy root folder
+COPY --from=builder /app/bin/ /usr/bin/
+
+ENTRYPOINT ["/usr/bin/lebot"]
+CMD ["run"]
+```
+
+
 ## Multi-stage Dockerfile (Node.js)
 
 ```dockerfile

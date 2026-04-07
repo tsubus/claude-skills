@@ -51,13 +51,12 @@ Load detailed guidance based on context:
 
 | Topic | Reference | Load When |
 |-------|-----------|-----------|
-| GitHub Actions | `references/github-actions.md` | Setting up CI/CD pipelines, GitHub workflows |
+| GitLab GoReleaser | `references/gitlab-goreleaser.md` | Setting up CI/CD pipelines, GitLab workflows, artifact management, feature flags, multi-platform CI/CD |
 | Docker | `references/docker-patterns.md` | Containerizing applications, writing Dockerfiles |
 | Kubernetes | `references/kubernetes.md` | K8s deployments, services, ingress, pods |
 | Terraform | `references/terraform-iac.md` | Infrastructure as code, AWS/GCP provisioning |
 | Deployment | `references/deployment-strategies.md` | Blue-green, canary, rolling updates, rollback |
 | Platform | `references/platform-engineering.md` | Self-service infra, developer portals, golden paths, Backstage |
-| Release | `references/release-automation.md` | Artifact management, feature flags, multi-platform CI/CD |
 | Incidents | `references/incident-response.md` | Production outages, on-call, MTTR, postmortems, runbooks |
 
 ## Constraints
@@ -82,47 +81,88 @@ Load detailed guidance based on context:
 
 Provide: CI/CD pipeline config, Dockerfile, K8s/Terraform files, deployment verification, rollback procedure
 
-### Minimal GitHub Actions Example
+### Minimal GitLab Pipeline Example
 
 ```yaml
-name: CI
-on:
-  push:
-    branches: [main]
-jobs:
-  build-test-push:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build image
-        run: docker build -t myapp:${{ github.sha }} .
-      - name: Run tests
-        run: docker run --rm myapp:${{ github.sha }} pytest
-      - name: Scan image
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: myapp:${{ github.sha }}
-      - name: Push to registry
-        run: |
-          docker tag myapp:${{ github.sha }} ghcr.io/org/myapp:${{ github.sha }}
-          docker push ghcr.io/org/myapp:${{ github.sha }}
+variables:
+  PROJECT: lebot
+  DOCKERFILE_PATH: $CI_PROJECT_DIR/docker
+
+stages:
+  - validate
+  - build
+  - release
+
+include:
+  - project: "tsubus-root/misc/common"
+    ref: main
+    file: ".gitlab-ci-templates.yml"
+
+test:
+  extends: .go-template
+  stage: validate
+  script:
+    - task test
+  rules:
+    - if: $DOCKER_DEPLOY
+      when: never
+    - when: on_success
+
+test:race:
+  extends: .go-template
+  stage: validate
+  script:
+    - task test:race
+  rules:
+    - if: $DOCKER_DEPLOY
+      when: never
+    - when: on_success
+
+lint:
+  extends: .golangci-template
+  stage: validate
+  before_script:
+    - !reference [.golangci-template, before_script]
+    - apt-get update && apt-get install -y --no-install-recommends libolm-dev
+  script:
+    - task lint
+  rules:
+    - if: $DOCKER_DEPLOY
+      when: never
+    - when: on_success
+
+# Snapshot build for non-tag commits (binaries only, no release)
+goreleaser-snapshot:
+  extends: .goreleaser-snapshot
+  stage: build
+  rules:
+    - if: $DOCKER_DEPLOY
+      when: never
+    - if: $CI_COMMIT_TAG
+      when: never
+    - when: on_success
+
+# Build and push via GoReleaser on tags
+goreleaser:
+  extends: .goreleaser
+  stage: release
+  rules:
+    - if: $DOCKER_DEPLOY
+      when: never
+    - if: $CI_COMMIT_TAG
 ```
 
 ### Minimal Dockerfile Example
 
 ```dockerfile
-FROM python:3.12-slim AS builder
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+FROM gcr.io/distroless/cc-debian12:nonroot
 
-FROM python:3.12-slim
-WORKDIR /app
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY . .
-USER nonroot
-HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost:8080/health || exit 1
-CMD ["python", "main.py"]
+ARG TARGETPLATFORM
+COPY --chmod=755 $TARGETPLATFORM/lebot /usr/bin/lebot
+
+ENTRYPOINT ["/usr/bin/lebot"]
+CMD ["run"]
+
 ```
 
 ### Rollback Procedure Example
