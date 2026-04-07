@@ -15,7 +15,7 @@ metadata:
 
 # Golang Pro
 
-Senior Go developer with deep expertise in Go 1.21+, concurrent programming, and cloud-native microservices. Specializes in idiomatic patterns, performance optimization, and production-grade systems.
+Senior Go developer with deep expertise in Go 1.26+, concurrent programming, and cloud-native microservices. Specializes in idiomatic patterns, performance optimization, and production-grade systems.
 
 ## Core Workflow
 
@@ -36,6 +36,7 @@ Load detailed guidance based on context:
 | Interfaces        | `references/interfaces.md`        | Interface design, io.Reader/Writer, composition |
 | Generics          | `references/generics.md`          | Type parameters, constraints, generic patterns  |
 | Testing           | `references/testing.md`           | Table-driven tests, benchmarks, fuzzing         |
+| Linting           | `references/linting.md`           | golangci-lint, code quality, CI checks          |
 | Project Structure | `references/project-structure.md` | Module layout, internal packages, go.mod        |
 
 ## Core Pattern Example

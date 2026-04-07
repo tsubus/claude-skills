@@ -351,10 +351,12 @@ tasks:
       - INTEGRATION=1 go test -v ./...
 
   lint:
+    desc: Run golangci-lint (see references/linting.md for detailed configuration)
     cmds:
       - cmd: golangci-lint run -v
 
   lint:fix:
+    desc: Fix auto-fixable linting issues
     cmds:
       - cmd: golangci-lint run --fix -v
 
@@ -528,3 +530,4 @@ func Load() (*Config, error) {
 | `go generate ./...`          | Run code generation     |
 | `GOOS=linux go build`        | Cross-compile           |
 | `go work init`               | Initialize workspace    |
+| `golangci-lint run`          | Lint code (see linting.md) |
