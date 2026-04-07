@@ -121,9 +121,6 @@ test:race:
 lint:
   extends: .golangci-template
   stage: validate
-  before_script:
-    - !reference [.golangci-template, before_script]
-    - apt-get update && apt-get install -y --no-install-recommends libolm-dev
   script:
     - task lint
   rules:
